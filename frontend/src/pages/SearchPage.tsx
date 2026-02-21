@@ -38,7 +38,7 @@ export function SearchPage() {
 
       {!loading && !error && !query && (
         <p className="mt-3 text-gray-600 text-xs">
-          {entries.length.toLocaleString()} entries indexed
+          {(showLegacy ? entries : entries.filter(e => e.edition !== 'legacy')).length.toLocaleString()} entries indexed
         </p>
       )}
 
