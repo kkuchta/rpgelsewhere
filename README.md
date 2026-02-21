@@ -4,9 +4,9 @@ A fast search tool for [D&D Beyond](https://www.dndbeyond.com/) content. Search 
 
 ## How it works
 
-1. **Scraper** — queries the [Common Crawl](https://commoncrawl.org/) CDX API to discover D&D Beyond URLs, extracts names from URL slugs (`acid-splash` → "Acid Splash"), and stores them in Postgres.
+1. **Scraper** — queries the [Common Crawl](https://commoncrawl.org/) CDX API to discover D&D Beyond URLs, extracts names from URL slugs (`acid-splash` → "Acid Splash"), fetches the archived page HTML via WARC records to detect whether the entry is 2014 legacy or 2024 edition, and stores everything in Postgres.
 2. **API** — a FastAPI backend serves entries via a simple CRUD API.
-3. **Search UI** — a React frontend loads all entries once and does client-side search with a custom scoring algorithm.
+3. **Search UI** — a React frontend loads all entries once and does client-side search with a custom scoring algorithm. Legacy (2014) entries are labeled in the results.
 
 # Requirements
 
@@ -46,7 +46,7 @@ just fe-install
 # Run migrations
 just db-migrate
 
-# Scrape some data (optional test run: 5 entries from 1 crawl)
+# Scrape some data (classes + species only, all crawls — good for testing)
 just scrape-test
 
 # Start dev servers (frontend + backend)
@@ -66,8 +66,15 @@ just db-up        # Start Postgres via Docker Compose
 just db-down      # Stop Postgres
 just db-migrate   # Run Alembic migrations
 
-just scrape       # Scrape D&D Beyond URLs from Common Crawl
-just scrape-test  # Test scrape (5 entries, 1 crawl)
+just scrape       # Scrape all categories from Common Crawl (full run)
+just scrape-test  # Scrape classes + species only (faster, good for local dev)
+
+# Scraper flags (pass after scrape/scrape-test via -- if needed):
+#   --categories Class Spell ...   Only scrape specific categories
+#   --skip-warc                    Skip edition detection (faster, edition stored as NULL)
+#   --dry-run                      Print results without writing to DB
+#   --limit N                      Cap results per category per crawl
+#   --crawls N                     Number of recent Common Crawl snapshots to search
 
 just lint         # Lint backend + frontend + typecheck
 just fe-test      # Run frontend tests
@@ -99,6 +106,7 @@ rpgelsewhere/
 │       ├── search/      # Client-side search + scoring algorithm
 │       ├── pages/       # SearchPage, AdminPage
 │       └── components/  # SearchBox, SearchResult
+├── docs/                # Project documentation
 ├── docker-compose.yml
 └── justfile
 ```
