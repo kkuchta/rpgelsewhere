@@ -7,6 +7,7 @@ class EntryBase(BaseModel):
     name: str
     category: str
     url: str
+    edition: str | None = None
 
 
 class EntryCreate(EntryBase):

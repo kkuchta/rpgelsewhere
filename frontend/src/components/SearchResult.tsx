@@ -36,7 +36,12 @@ export function SearchResult({ entry, focused, onClick, onMouseEnter }: Props) {
       ].join(' ')}
       aria-label={`${entry.name} (${entry.category})`}
     >
-      <span className="text-white font-medium truncate mr-3">{entry.name}</span>
+      <span className="flex items-center gap-2 truncate mr-3">
+        <span className="text-white font-medium truncate">{entry.name}</span>
+        {entry.edition === 'legacy' && (
+          <span className="text-xs font-medium text-gray-400 shrink-0">2014</span>
+        )}
+      </span>
       <span className={`text-xs font-semibold px-2 py-0.5 rounded-full shrink-0 ${badgeClass}`}>
         {entry.category}
       </span>

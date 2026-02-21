@@ -42,7 +42,7 @@ scrape:
     cd backend && uv run python -m scripts.scrape_commoncrawl
 
 scrape-test:
-    cd backend && uv run python -m scripts.scrape_commoncrawl --limit 5 --crawls 1
+    cd backend && uv run python -m scripts.scrape_commoncrawl --categories Class Species
 
 # All
 lint:

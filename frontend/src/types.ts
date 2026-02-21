@@ -3,6 +3,7 @@ export interface Entry {
   name: string
   category: string
   url: string
+  edition: string | null
   created_at: string
   updated_at: string
 }

@@ -82,6 +82,10 @@ The scraper indexes the following D&D Beyond content types:
 - Magic Items, Equipment
 - Feats, Backgrounds
 
+## Documentation
+
+- [`docs/common-crawl.md`](docs/common-crawl.md) — CDX API usage, WARC record fetching, and rate limiting guidelines
+
 ## Project structure
 
 ```
