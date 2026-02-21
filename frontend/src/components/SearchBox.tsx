@@ -10,10 +10,12 @@ interface Props {
 
 export function SearchBox({ query, onQueryChange, results }: Props) {
   const inputRef = useRef<HTMLInputElement>(null)
-  const [rawFocusedIndex, setFocusedIndex] = useState(-1)
+  const [rawFocusedIndex, setFocusedIndex] = useState(0)
 
-  // Clamp focusedIndex to valid range without setState-in-effect
-  const focusedIndex = rawFocusedIndex >= results.length ? -1 : rawFocusedIndex
+  // When results are present, clamp to valid range and default to 0.
+  // When there are no results, return -1 so Enter is a no-op.
+  const focusedIndex =
+    results.length === 0 ? -1 : Math.min(Math.max(rawFocusedIndex, 0), results.length - 1)
 
   // Auto-focus on mount
   useEffect(() => {
@@ -25,16 +27,10 @@ export function SearchBox({ query, onQueryChange, results }: Props) {
 
     if (e.key === 'ArrowDown') {
       e.preventDefault()
-      setFocusedIndex(i => {
-        const clamped = i >= results.length ? -1 : i
-        return Math.min(clamped + 1, results.length - 1)
-      })
+      setFocusedIndex(i => Math.min(Math.max(i + 1, 0), results.length - 1))
     } else if (e.key === 'ArrowUp') {
       e.preventDefault()
-      setFocusedIndex(i => {
-        const clamped = i >= results.length ? -1 : i
-        return Math.max(clamped - 1, 0)
-      })
+      setFocusedIndex(i => Math.max(Math.min(i, results.length - 1) - 1, 0))
     } else if (e.key === 'Enter' && focusedIndex >= 0) {
       e.preventDefault()
       const entry = results[focusedIndex]
@@ -50,7 +46,10 @@ export function SearchBox({ query, onQueryChange, results }: Props) {
         ref={inputRef}
         type="search"
         value={query}
-        onChange={e => onQueryChange(e.target.value)}
+        onChange={e => {
+          onQueryChange(e.target.value)
+          setFocusedIndex(0)
+        }}
         onKeyDown={handleKeyDown}
         placeholder="Search spells, monsters, classes..."
         aria-label="Search D&D content"
