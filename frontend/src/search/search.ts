@@ -12,13 +12,15 @@ export function indexEntries(entries: Array<{ id: number; name: string; category
   }))
 }
 
-export function search(query: string, entries: IndexedEntry[]): IndexedEntry[] {
+export function search(query: string, entries: IndexedEntry[], showLegacy = true): IndexedEntry[] {
   const q = query.trim().toLowerCase()
   if (!q) return []
 
+  const pool = showLegacy ? entries : entries.filter(e => e.edition !== 'legacy')
+
   const scored: Array<{ entry: IndexedEntry; score: number }> = []
 
-  for (const entry of entries) {
+  for (const entry of pool) {
     const score = scoreEntry(q, entry)
     if (score > 0) {
       scored.push({ entry, score })

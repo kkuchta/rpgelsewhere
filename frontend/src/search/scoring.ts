@@ -44,6 +44,11 @@ export function scoreNameLength(_query: string, entry: IndexedEntry): number {
   return -5
 }
 
+// Prefer 2024 entries over legacy (2014) entries when all else is equal
+export function scoreEdition(_query: string, entry: IndexedEntry): number {
+  return entry.edition === 'legacy' ? 0 : 2
+}
+
 export function scoreEntry(query: string, entry: IndexedEntry): number {
   const matchScore =
     scoreExactMatch(query, entry) +
@@ -54,5 +59,5 @@ export function scoreEntry(query: string, entry: IndexedEntry): number {
 
   if (matchScore === 0) return 0
 
-  return matchScore + scoreCategoryBoost(query, entry) + scoreNameLength(query, entry)
+  return matchScore + scoreCategoryBoost(query, entry) + scoreNameLength(query, entry) + scoreEdition(query, entry)
 }

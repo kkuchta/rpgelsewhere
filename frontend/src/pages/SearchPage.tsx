@@ -5,7 +5,7 @@ import { useSearch } from '../hooks/useSearch'
 
 export function SearchPage() {
   const { entries, loading, error } = useEntries()
-  const { query, setQuery, results } = useSearch(entries)
+  const { query, setQuery, results, showLegacy, setShowLegacy } = useSearch(entries)
 
   return (
     <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-start pt-24 px-4">
@@ -19,11 +19,25 @@ export function SearchPage() {
       ) : error ? (
         <div className="text-red-400 text-sm">Error: {error}</div>
       ) : (
-        <SearchBox query={query} onQueryChange={setQuery} results={results} />
+        <>
+          <SearchBox query={query} onQueryChange={setQuery} results={results} />
+          <div className="w-full max-w-2xl mt-2 flex items-center gap-2 px-1">
+            <input
+              type="checkbox"
+              id="show-legacy"
+              checked={showLegacy}
+              onChange={e => setShowLegacy(e.target.checked)}
+              className="accent-indigo-500 cursor-pointer"
+            />
+            <label htmlFor="show-legacy" className="text-gray-500 text-xs cursor-pointer select-none">
+              Include legacy (2014) entries
+            </label>
+          </div>
+        </>
       )}
 
       {!loading && !error && !query && (
-        <p className="mt-4 text-gray-600 text-xs">
+        <p className="mt-3 text-gray-600 text-xs">
           {entries.length.toLocaleString()} entries indexed
         </p>
       )}
