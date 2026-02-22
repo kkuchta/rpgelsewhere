@@ -1,0 +1,3 @@
+- Check out admin
+- Improve design
+- Deploy
