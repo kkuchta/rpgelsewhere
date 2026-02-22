@@ -4,7 +4,7 @@ A fast search tool for [D&D Beyond](https://www.dndbeyond.com/) content. Search 
 
 ## How it works
 
-1. **Scraper** — queries the [Common Crawl](https://commoncrawl.org/) CDX API to discover D&D Beyond URLs, extracts names from URL slugs (`acid-splash` → "Acid Splash"), fetches the archived page HTML via WARC records to detect whether the entry is 2014 legacy or 2024 edition, and stores everything in Postgres.
+1. **Scraper** — queries the [Common Crawl](https://commoncrawl.org/) CDX API to discover D&D Beyond URLs, extracts names from URL slugs (`acid-splash` → "Acid Splash"), fetches the archived page HTML via WARC records to filter out homebrew content and detect whether the entry is 2014 legacy or 2024 edition, and stores everything in Postgres.
 2. **API** — a FastAPI backend serves entries via a simple CRUD API.
 3. **Search UI** — a React frontend loads all entries once and does client-side search with a custom scoring algorithm. Legacy (2014) entries are labeled in the results.
 
@@ -71,7 +71,7 @@ just scrape-test  # Scrape classes + species only (faster, good for local dev)
 
 # Scraper flags (pass after scrape/scrape-test via -- if needed):
 #   --categories Class Spell ...   Only scrape specific categories
-#   --skip-warc                    Skip edition detection (faster, edition stored as NULL)
+#   --skip-warc                    Skip edition detection and homebrew filtering (faster, edition stored as NULL)
 #   --dry-run                      Print results without writing to DB
 #   --limit N                      Cap results per category per crawl
 #   --crawls N                     Number of recent Common Crawl snapshots to search

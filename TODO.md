@@ -1,3 +1,5 @@
 - Check out admin
+  - Secure this
 - Improve design
 - Deploy
+- ~~Scraping: ignore homebrew~~

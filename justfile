@@ -38,6 +38,9 @@ fe-test:
     cd frontend && npm test
 
 # Scraper
+db-clear:
+    docker compose exec db psql -U rpg -d rpgelsewhere -c "TRUNCATE TABLE entries RESTART IDENTITY;"
+
 scrape:
     cd backend && uv run python -m scripts.scrape_commoncrawl
 

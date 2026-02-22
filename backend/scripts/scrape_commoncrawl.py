@@ -26,6 +26,9 @@ WARC_BASE = "https://data.commoncrawl.org"
 # D&D Beyond banner text present on all legacy (2014) content pages
 LEGACY_BANNER_TEXT = "doesn't reflect the latest rules and lore"
 
+# Marker present on homebrew content pages but not on official content
+HOMEBREW_MARKER = 'class="i-homebrew"'
+
 # Map URL prefix → category name
 CONTENT_PREFIXES: list[tuple[str, str]] = [
     ("www.dndbeyond.com/spells/", "Spell"),
@@ -129,6 +132,11 @@ def fetch_warc_content(
     except Exception as e:
         print(f"    WARC fetch error ({filename}): {e}")
     return None
+
+
+def is_homebrew(html: str) -> bool:
+    """Return True if the page is user-created homebrew content."""
+    return HOMEBREW_MARKER in html
 
 
 def detect_edition(html: str) -> str:
@@ -244,10 +252,11 @@ def main():
                 print(f"{count} new entries")
                 time.sleep(1.5)
 
-        # Second pass: fetch WARC content and detect edition
+        # Second pass: fetch WARC content, filter homebrew, and detect edition
         if not args.skip_warc:
             total = len(seen_urls)
             print(f"\nFetching WARC records to detect edition ({total} entries)...")
+            homebrew_urls: list[str] = []
             for i, (url, entry) in enumerate(seen_urls.items(), 1):
                 filename = entry.get("_warc_filename")
                 offset = entry.get("_warc_offset", 0)
@@ -260,14 +269,26 @@ def main():
                 print(f"  [{i}/{total}] {url}", end=" ... ", flush=True)
                 html = fetch_warc_content(filename, offset, length, client)
                 if html is not None:
-                    entry["edition"] = detect_edition(html)
-                    print(entry["edition"])
+                    if is_homebrew(html):
+                        print("SKIP (homebrew)")
+                        homebrew_urls.append(url)
+                    else:
+                        entry["edition"] = detect_edition(html)
+                        print(entry["edition"])
                 else:
                     print("fetch failed, edition=None")
 
                 time.sleep(0.5)
+
+            for url in homebrew_urls:
+                seen_urls.pop(url, None)
+            if homebrew_urls:
+                print(f"Filtered {len(homebrew_urls)} homebrew entries.")
         else:
-            print("\nSkipping WARC fetches (--skip-warc). Edition will be NULL.")
+            print(
+                "\nSkipping WARC fetches (--skip-warc). Edition will be NULL. "
+                "Note: homebrew filtering is disabled when --skip-warc is used."
+            )
 
     # Strip internal WARC metadata keys before upserting
     entries = [
