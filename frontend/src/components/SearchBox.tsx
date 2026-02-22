@@ -58,7 +58,7 @@ export function SearchBox({ query, onQueryChange, results }: Props) {
         className={[
           'w-full px-5 py-4 text-lg',
           'bg-warm-input text-warm-text placeholder-warm-muted',
-          'border-2 border-warm-border focus:border-warm-accent focus:outline-none',
+          'border-2 border-warm-border focus:border-[#A89E95] focus:outline-none',
           results.length > 0 ? 'rounded-t-xl' : 'rounded-xl',
           'transition-colors duration-150',
         ].join(' ')}

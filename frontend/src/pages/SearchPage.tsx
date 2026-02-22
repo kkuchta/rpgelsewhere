@@ -27,7 +27,7 @@ export function SearchPage() {
               id="show-legacy"
               checked={showLegacy}
               onChange={e => setShowLegacy(e.target.checked)}
-              className="accent-warm-accent cursor-pointer"
+              className="accent-[#2E2A28] cursor-pointer"
             />
             <label htmlFor="show-legacy" className="text-warm-muted text-xs cursor-pointer select-none">
               Include legacy (2014) entries
