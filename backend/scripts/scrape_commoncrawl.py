@@ -99,8 +99,10 @@ def query_cdx(
     return results
 
 
-def fetch_warc_content(filename: str, offset: int, length: int, client: httpx.Client) -> str | None:
-    """Fetch the HTML body of a WARC record from Common Crawl S3 via an HTTP Range request."""
+def fetch_warc_content(
+    filename: str, offset: int, length: int, client: httpx.Client
+) -> str | None:
+    """Fetch a WARC record HTML body from Common Crawl S3 via an HTTP Range request."""
     s3_url = f"{WARC_BASE}/{filename}"
     byte_range = f"bytes={offset}-{offset + length - 1}"
     try:
@@ -115,6 +117,7 @@ def fetch_warc_content(filename: str, offset: int, length: int, client: httpx.Cl
             raw = resp.read()
 
         import io
+
         stream = ArchiveIterator(io.BytesIO(raw))
         for warc_record in stream:
             if warc_record.rec_type == "response":
