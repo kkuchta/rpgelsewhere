@@ -13,10 +13,10 @@ import re
 import time
 
 import httpx
-from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy.dialects.sqlite import insert
 from warcio.archiveiterator import ArchiveIterator
 
-from app.database import SessionLocal
+from app.database import SessionLocal, create_tables
 from app.models import Entry
 
 CDX_API = "https://index.commoncrawl.org/{crawl_id}-index"
@@ -198,6 +198,7 @@ def main():
             known = ", ".join(sorted({c for _, c in CONTENT_PREFIXES}))
             parser.error(f"No matching categories found. Known categories: {known}")
 
+    create_tables()
     print(f"Fetching {args.crawls} recent crawl IDs...")
     with httpx.Client() as client:
         crawl_ids = get_recent_crawl_ids(args.crawls, client)

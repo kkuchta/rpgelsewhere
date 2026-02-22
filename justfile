@@ -1,13 +1,3 @@
-# Infrastructure
-db-up:
-    docker compose up -d
-
-db-down:
-    docker compose down
-
-db-migrate:
-    cd backend && uv run alembic upgrade head
-
 # Backend
 be-install:
     cd backend && uv sync
@@ -38,14 +28,20 @@ fe-test:
     cd frontend && npm test
 
 # Scraper
-db-clear:
-    docker compose exec db psql -U rpg -d rpgelsewhere -c "TRUNCATE TABLE entries RESTART IDENTITY;"
-
 scrape:
     cd backend && uv run python -m scripts.scrape_commoncrawl
 
 scrape-test:
     cd backend && uv run python -m scripts.scrape_commoncrawl --categories Class Species
+
+# Build
+export:
+    cd backend && uv run python -m scripts.export_entries
+
+fe-build:
+    cd frontend && npm run build
+
+build: export fe-build
 
 # All
 lint:

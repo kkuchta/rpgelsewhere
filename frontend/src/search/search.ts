@@ -1,9 +1,9 @@
-import type { IndexedEntry } from '../types'
+import type { Entry, IndexedEntry } from '../types'
 import { scoreEntry } from './scoring'
 
 const TOP_N = 20
 
-export function indexEntries(entries: Array<{ id: number; name: string; category: string; url: string; created_at: string; updated_at: string }>): IndexedEntry[] {
+export function indexEntries(entries: Entry[]): IndexedEntry[] {
   return entries.map(e => ({
     ...e,
     nameLower: e.name.toLowerCase(),

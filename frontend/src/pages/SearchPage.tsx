@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom'
 import { SearchBox } from '../components/SearchBox'
 import { useEntries } from '../hooks/useEntries'
 import { useSearch } from '../hooks/useSearch'
@@ -17,7 +16,10 @@ export function SearchPage() {
       {loading ? (
         <div className="text-warm-muted text-sm">Loading entries...</div>
       ) : error ? (
-        <div className="text-warm-error text-sm">Error: {error}</div>
+        <div className="text-center">
+          <p className="text-warm-error text-sm mb-2">{error}</p>
+          <p className="text-warm-muted text-xs">Run <code className="bg-warm-surface border border-warm-border rounded px-1 py-0.5">just scrape-test && just export</code> to get started.</p>
+        </div>
       ) : (
         <>
           <SearchBox query={query} onQueryChange={setQuery} results={results} />
@@ -42,12 +44,6 @@ export function SearchPage() {
         </p>
       )}
 
-      <Link
-        to="/admin"
-        className="fixed bottom-4 right-4 text-xs text-warm-muted hover:text-warm-text transition-colors"
-      >
-        Admin
-      </Link>
     </div>
   )
 }

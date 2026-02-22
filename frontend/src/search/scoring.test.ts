@@ -14,13 +14,10 @@ import { indexEntries, search } from './search'
 
 function makeEntry(name: string, category: string = 'Spell', edition: string | null = null): IndexedEntry {
   return {
-    id: 1,
     name,
     category,
     url: `https://www.dndbeyond.com/spells/${name.toLowerCase().replace(/ /g, '-')}`,
     edition,
-    created_at: '',
-    updated_at: '',
     nameLower: name.toLowerCase(),
     categoryLower: category.toLowerCase(),
     nameWords: name.toLowerCase().split(/\s+/),
@@ -136,11 +133,11 @@ describe('scoreNameLength', () => {
 
 describe('search integration', () => {
   const rawEntries = [
-    { id: 1, name: 'Wizard', category: 'Class', url: 'https://www.dndbeyond.com/classes/wizard', edition: null, created_at: '', updated_at: '' },
-    { id: 2, name: 'Red Wizard', category: 'Monster', url: 'https://www.dndbeyond.com/monsters/red-wizard', edition: null, created_at: '', updated_at: '' },
-    { id: 3, name: 'Fireball', category: 'Spell', url: 'https://www.dndbeyond.com/spells/fireball', edition: null, created_at: '', updated_at: '' },
-    { id: 4, name: 'Fire Bolt', category: 'Spell', url: 'https://www.dndbeyond.com/spells/fire-bolt', edition: null, created_at: '', updated_at: '' },
-    { id: 5, name: 'Acid Splash', category: 'Spell', url: 'https://www.dndbeyond.com/spells/acid-splash', edition: null, created_at: '', updated_at: '' },
+    { name: 'Wizard', category: 'Class', url: 'https://www.dndbeyond.com/classes/wizard', edition: null },
+    { name: 'Red Wizard', category: 'Monster', url: 'https://www.dndbeyond.com/monsters/red-wizard', edition: null },
+    { name: 'Fireball', category: 'Spell', url: 'https://www.dndbeyond.com/spells/fireball', edition: null },
+    { name: 'Fire Bolt', category: 'Spell', url: 'https://www.dndbeyond.com/spells/fire-bolt', edition: null },
+    { name: 'Acid Splash', category: 'Spell', url: 'https://www.dndbeyond.com/spells/acid-splash', edition: null },
   ]
   const entries = indexEntries(rawEntries)
 
@@ -172,8 +169,8 @@ describe('search integration', () => {
 
   it('showLegacy=false excludes legacy entries', () => {
     const withLegacy = [
-      { id: 6, name: 'Fireball', category: 'Spell', url: 'https://www.dndbeyond.com/spells/2014/fireball', edition: 'legacy', created_at: '', updated_at: '' },
-      { id: 7, name: 'Fireball', category: 'Spell', url: 'https://www.dndbeyond.com/spells/fireball', edition: null, created_at: '', updated_at: '' },
+      { name: 'Fireball', category: 'Spell', url: 'https://www.dndbeyond.com/spells/2014/fireball', edition: 'legacy' },
+      { name: 'Fireball', category: 'Spell', url: 'https://www.dndbeyond.com/spells/fireball', edition: null },
     ]
     const indexed = indexEntries(withLegacy)
     const withoutLegacyResults = search('fireball', indexed, false)
@@ -183,8 +180,8 @@ describe('search integration', () => {
 
   it('2024 entry ranks above legacy entry with same name', () => {
     const mixed = [
-      { id: 8, name: 'Fireball', category: 'Spell', url: 'https://www.dndbeyond.com/spells/2014/fireball', edition: 'legacy', created_at: '', updated_at: '' },
-      { id: 9, name: 'Fireball', category: 'Spell', url: 'https://www.dndbeyond.com/spells/fireball', edition: null, created_at: '', updated_at: '' },
+      { name: 'Fireball', category: 'Spell', url: 'https://www.dndbeyond.com/spells/2014/fireball', edition: 'legacy' },
+      { name: 'Fireball', category: 'Spell', url: 'https://www.dndbeyond.com/spells/fireball', edition: null },
     ]
     const indexed = indexEntries(mixed)
     const results = search('fireball', indexed)

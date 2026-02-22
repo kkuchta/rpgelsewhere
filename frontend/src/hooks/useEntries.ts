@@ -7,20 +7,12 @@ interface UseEntriesResult {
   entries: IndexedEntry[]
   loading: boolean
   error: string | null
-  reload: () => void
 }
 
 export function useEntries(): UseEntriesResult {
   const [entries, setEntries] = useState<IndexedEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [tick, setTick] = useState(0)
-
-  function reload() {
-    setLoading(true)
-    setError(null)
-    setTick(t => t + 1)
-  }
 
   useEffect(() => {
     let cancelled = false
@@ -42,7 +34,7 @@ export function useEntries(): UseEntriesResult {
     return () => {
       cancelled = true
     }
-  }, [tick])
+  }, [])
 
-  return { entries, loading, error, reload }
+  return { entries, loading, error }
 }

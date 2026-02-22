@@ -2,7 +2,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 
-from app import auth
 from app.config import settings
 from app.routers import entries
 
@@ -17,19 +16,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(auth.router)
 app.include_router(entries.router)
 
 
 @app.get("/health")
 def health():
     return {"status": "ok"}
-
-
-# Add Cache-Control header to entries endpoint
-@app.middleware("http")
-async def add_cache_header(request, call_next):
-    response = await call_next(request)
-    if request.url.path == "/api/entries" and request.method == "GET":
-        response.headers["Cache-Control"] = "public, max-age=300"
-    return response

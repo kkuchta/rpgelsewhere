@@ -1,6 +1,8 @@
 - ~~Check out admin~~
   - ~~Secure this~~
-- Improve design
+- X Improve design
 - Deploy
 - ~~Scraping: ignore homebrew~~
 - logging
+- analytics
+- ~~Go fully static (SQLite + CSV overrides)~~

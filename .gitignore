@@ -31,8 +31,9 @@ frontend/.vite/
 .DS_Store
 Thumbs.db
 
-# Docker
+# Logs
 *.log
 
-# Alembic
-backend/alembic/versions/__pycache__/
+# Build artifacts
+data/entries.db
+frontend/public/entries.json

@@ -4,16 +4,17 @@ A fast search tool for [D&D Beyond](https://www.dndbeyond.com/) content. Search 
 
 ## How it works
 
-1. **Scraper** — queries the [Common Crawl](https://commoncrawl.org/) CDX API to discover D&D Beyond URLs, extracts names from URL slugs (`acid-splash` → "Acid Splash"), fetches the archived page HTML via WARC records to filter out homebrew content and detect whether the entry is 2014 legacy or 2024 edition, and stores everything in Postgres.
-2. **API** — a FastAPI backend serves entries via a simple CRUD API.
-3. **Search UI** — a React frontend loads all entries once and does client-side search with a custom scoring algorithm. Legacy (2014) entries are labeled in the results.
+1. **Scraper** — queries the [Common Crawl](https://commoncrawl.org/) CDX API to discover D&D Beyond URLs, extracts names from URL slugs (`acid-splash` → "Acid Splash"), fetches the archived page HTML via WARC records to filter out homebrew content and detect whether the entry is 2014 legacy or 2024 edition, and stores everything in a local SQLite database.
+2. **Overrides** — `data/overrides.csv` (committed to git) provides manual corrections: add missing entries, fix names/categories, or exclude junk the scraper picked up.
+3. **Export** — combines the DB with overrides and writes `frontend/public/entries.json`.
+4. **Static site** — Vite bundles `entries.json` into the frontend. The resulting `dist/` directory is a fully static site with no backend required at runtime.
 
 # Requirements
 
 - We can't scrape dndbeyond.com directly because of their strong anti-bot protections. We can't use google or bing search apis because of their TOSs against caching search results.
-- The search must be _incredibly_ fast. Client-side only except _maybe_ something serverside for a fallback.
-- We're going to use commoncrawl. Not all spells/classes/etc will be present in each crawl, but hopefully over the course of a few crawls, we can most of the spells/classes/races/etc.
-- We should have an interface to add mappings manually when we find deficiencies.
+- The search must be _incredibly_ fast. Client-side only, powered by a bundled JSON file.
+- We're going to use commoncrawl. Not all spells/classes/etc will be present in each crawl, but hopefully over the course of a few crawls, we can get most of the spells/classes/races/etc.
+- We should have an interface to add mappings manually when we find deficiencies — this is the overrides CSV.
 - Search must be _intelligent_. We want the "Wizard" class to show up before the "Red Wizard" monster or whatever. This logic must be well-segmented out so that we can A. test it and B. modify it later as we come up with ideas to improve it.
 
 ## Stack
@@ -21,14 +22,13 @@ A fast search tool for [D&D Beyond](https://www.dndbeyond.com/) content. Search 
 | Layer    | Tools                                                         |
 | -------- | ------------------------------------------------------------- |
 | Frontend | React 19, TypeScript, Vite, TailwindCSS 4, React Router 7     |
-| Backend  | FastAPI, SQLAlchemy, Alembic, PostgreSQL 16                   |
-| Tooling  | Docker Compose, [`just`](https://github.com/casey/just), `uv` |
+| Backend  | FastAPI, SQLAlchemy, SQLite                                   |
+| Tooling  | [`just`](https://github.com/casey/just), `uv`                 |
 
 ## Getting started
 
 ### Prerequisites
 
-- Docker
 - [`just`](https://github.com/casey/just)
 - [`uv`](https://docs.astral.sh/uv/)
 - Node.js / npm
@@ -36,49 +36,52 @@ A fast search tool for [D&D Beyond](https://www.dndbeyond.com/) content. Search 
 ### Setup
 
 ```bash
-# Copy and configure environment variables (required for admin auth)
-cp .env.example backend/.env
-# Edit backend/.env and set ADMIN_PASSWORD and JWT_SECRET
-
-# Start the database
-just db-up
-
 # Install dependencies
 just be-install
 just fe-install
 
-# Run migrations
-just db-migrate
-
 # Scrape some data (classes + species only, all crawls — good for testing)
 just scrape-test
 
-# Start dev servers (frontend + backend)
-just dev
+# Export entries.json
+just export
+
+# Start the frontend dev server
+just fe-dev
 ```
 
-The frontend runs at `http://localhost:5173` and the backend at `http://localhost:8000`.
+The frontend runs at `http://localhost:5173`.
+
+> **Migrating from an older version?** If you have a `backend/.env` with `DATABASE_URL`, `ADMIN_PASSWORD`, or `JWT_SECRET` values from the Postgres era, clear or replace that file with the contents of `.env.example` — the old values will cause startup errors.
+
+### Production build
+
+```bash
+just build   # just export && just fe-build
+```
+
+The `frontend/dist/` directory is a fully static site — deploy it to any CDN.
 
 ## Available commands
 
 ```bash
-just dev          # Run frontend and backend concurrently
-just be-dev       # Backend only (uvicorn, hot reload)
-just fe-dev       # Frontend only (Vite)
-
-just db-up        # Start Postgres via Docker Compose
-just db-down      # Stop Postgres
-just db-migrate   # Run Alembic migrations
+just fe-dev       # Frontend dev server (the main one to use)
+just be-dev       # Backend only — vestigial, not needed for normal dev
+just dev          # Both concurrently (legacy convenience)
 
 just scrape       # Scrape all categories from Common Crawl (full run)
 just scrape-test  # Scrape classes + species only (faster, good for local dev)
 
-# Scraper flags (pass after scrape/scrape-test via -- if needed):
+# Scraper flags (pass after scrape/scrape-test):
 #   --categories Class Spell ...   Only scrape specific categories
 #   --skip-warc                    Skip edition detection and homebrew filtering (faster, edition stored as NULL)
 #   --dry-run                      Print results without writing to DB
 #   --limit N                      Cap results per category per crawl
 #   --crawls N                     Number of recent Common Crawl snapshots to search
+
+just export       # Apply overrides and write frontend/public/entries.json
+just fe-build     # Build the frontend (npm run build)
+just build        # Full build: export + fe-build
 
 just lint         # Lint backend + frontend + typecheck
 just fe-test      # Run frontend tests
@@ -93,25 +96,34 @@ The scraper indexes the following D&D Beyond content types:
 - Magic Items, Equipment
 - Feats, Backgrounds
 
+## Overrides
+
+Edit `data/overrides.csv` to manually correct the scraper output. Commit the file to git — changes are reviewed in PRs and version-tracked automatically.
+
+| Column     | Description                                     |
+| ---------- | ----------------------------------------------- |
+| `action`   | `add`, `update`, or `delete`                    |
+| `url`      | The D&D Beyond URL (used as the unique key)     |
+| `name`     | Entry name (leave blank on `delete`)            |
+| `category` | One of the content categories (leave blank on `delete`) |
+| `edition`  | `legacy`, `2024`, or blank                      |
+
+- **add** — insert an entry the scraper never found (all fields required)
+- **update** — override specific fields on a scraped entry matched by URL (empty fields are left unchanged; if the URL isn't in the DB it behaves like `add`)
+- **delete** — exclude an entry from the output
+
 ## Environment variables
 
-The backend reads from `backend/.env` (see `.env.example`):
+The backend reads from `backend/.env` (see `.env.example`). In most cases no configuration is needed — the defaults work out of the box.
 
 | Variable       | Required | Description                                          |
 | -------------- | -------- | ---------------------------------------------------- |
-| `DATABASE_URL` | No       | Postgres connection string (defaults to local dev)   |
-| `ADMIN_PASSWORD` | Yes    | Password to log in to the `/admin` interface         |
-| `JWT_SECRET`   | Yes      | Secret used to sign admin JWTs (use `openssl rand -hex 32`) |
-
-## Admin interface
-
-Visit `/admin` and log in with `ADMIN_PASSWORD`. The session lasts 24 hours and is stored in `sessionStorage`. Write operations (create, update, delete) require a valid JWT; reads are public.
-
-Login attempts are rate-limited to 20 failures per IP within a 5-minute sliding window. Exceeding this returns `429 Too Many Requests` with a `Retry-After` header. Successful logins do not count toward the limit.
+| `DATABASE_URL` | No       | SQLite connection string (defaults to `sqlite:///data/entries.db`) |
 
 ## Documentation
 
 - [`docs/common-crawl.md`](docs/common-crawl.md) — CDX API usage, WARC record fetching, and rate limiting guidelines
+- [`docs/architectural-decision-record.md`](docs/architectural-decision-record.md) — major architectural decisions
 
 ## Project structure
 
@@ -119,14 +131,14 @@ Login attempts are rate-limited to 20 failures per IP within a 5-minute sliding 
 rpgelsewhere/
 ├── backend/
 │   ├── app/             # FastAPI app (models, schemas, routers)
-│   ├── alembic/         # Database migrations
-│   └── scripts/         # scrape_commoncrawl.py
+│   └── scripts/         # scrape_commoncrawl.py, export_entries.py
+├── data/
+│   └── overrides.csv    # Manual entry corrections (committed to git)
 ├── frontend/
 │   └── src/
 │       ├── search/      # Client-side search + scoring algorithm
-│       ├── pages/       # SearchPage, AdminPage
+│       ├── pages/       # SearchPage
 │       └── components/  # SearchBox, SearchResult
 ├── docs/                # Project documentation
-├── docker-compose.yml
 └── justfile
 ```
