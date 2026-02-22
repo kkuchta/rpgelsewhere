@@ -107,6 +107,8 @@ The backend reads from `backend/.env` (see `.env.example`):
 
 Visit `/admin` and log in with `ADMIN_PASSWORD`. The session lasts 24 hours and is stored in `sessionStorage`. Write operations (create, update, delete) require a valid JWT; reads are public.
 
+Login attempts are rate-limited to 20 failures per IP within a 5-minute sliding window. Exceeding this returns `429 Too Many Requests` with a `Retry-After` header. Successful logins do not count toward the limit.
+
 ## Documentation
 
 - [`docs/common-crawl.md`](docs/common-crawl.md) — CDX API usage, WARC record fetching, and rate limiting guidelines

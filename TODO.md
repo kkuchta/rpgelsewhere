@@ -3,3 +3,4 @@
 - Improve design
 - Deploy
 - ~~Scraping: ignore homebrew~~
+- logging
