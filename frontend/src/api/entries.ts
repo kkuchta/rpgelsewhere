@@ -1,7 +1,7 @@
 import type { Entry } from '../types'
 
 export async function fetchEntries(): Promise<Entry[]> {
-  const response = await fetch('/api/entries')
+  const response = await fetch('/api/entries', { cache: 'no-store' })
   if (!response.ok) {
     throw new Error(`Failed to fetch entries: ${response.statusText}`)
   }
