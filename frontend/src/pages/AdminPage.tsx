@@ -34,10 +34,10 @@ function LoginGate({ onLogin }: { onLogin: (password: string) => Promise<void> }
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
+    <div className="min-h-screen bg-warm-bg text-warm-text flex items-center justify-center">
       <div className="w-full max-w-sm">
         <h1 className="text-2xl font-bold mb-6 text-center">Admin Login</h1>
-        <form onSubmit={handleSubmit} className="bg-gray-800 rounded-xl p-6 flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="bg-warm-surface border border-warm-border rounded-xl p-6 flex flex-col gap-4">
           <input
             type="password"
             placeholder="Password"
@@ -45,13 +45,13 @@ function LoginGate({ onLogin }: { onLogin: (password: string) => Promise<void> }
             onChange={e => setPassword(e.target.value)}
             autoFocus
             required
-            className="bg-gray-700 rounded px-3 py-2 text-sm"
+            className="bg-warm-input border border-warm-border rounded px-3 py-2 text-sm text-warm-text placeholder-warm-muted focus:border-warm-accent focus:outline-none transition-colors duration-150"
           />
-          {error && <p className="text-red-400 text-xs">{error}</p>}
+          {error && <p className="text-warm-error text-xs">{error}</p>}
           <button
             type="submit"
             disabled={submitting}
-            className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 rounded px-3 py-2 text-sm font-medium"
+            className="bg-warm-accent hover:opacity-90 disabled:opacity-50 text-white rounded px-3 py-2 text-sm font-medium transition-opacity duration-150"
           >
             {submitting ? 'Logging in…' : 'Log in'}
           </button>
@@ -72,8 +72,8 @@ export function AdminPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
-        <p className="text-gray-400">Loading…</p>
+      <div className="min-h-screen bg-warm-bg text-warm-text flex items-center justify-center">
+        <p className="text-warm-muted">Loading…</p>
       </div>
     )
   }
@@ -130,15 +130,15 @@ export function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-6">
+    <div className="min-h-screen bg-warm-bg text-warm-text p-6">
       <div className="max-w-5xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold">Admin — Entries</h1>
           <div className="flex items-center gap-4">
-            <Link to="/" className="text-sm text-indigo-400 hover:text-indigo-300">← Search</Link>
+            <Link to="/" className="text-sm text-warm-accent hover:opacity-80 transition-opacity">← Search</Link>
             <button
               onClick={logout}
-              className="text-sm text-gray-400 hover:text-gray-300"
+              className="text-sm text-warm-muted hover:text-warm-text transition-colors duration-150"
             >
               Log out
             </button>
@@ -146,19 +146,19 @@ export function AdminPage() {
         </div>
 
         {/* Add / Edit form */}
-        <form onSubmit={handleSubmit} className="bg-gray-800 rounded-xl p-4 mb-6 grid grid-cols-1 sm:grid-cols-4 gap-3">
+        <form onSubmit={handleSubmit} className="bg-warm-surface border border-warm-border rounded-xl p-4 mb-6 grid grid-cols-1 sm:grid-cols-4 gap-3">
           <input
             type="text"
             placeholder="Name"
             value={form.name}
             onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
             required
-            className="bg-gray-700 rounded px-3 py-2 text-sm col-span-1"
+            className="bg-warm-input border border-warm-border rounded px-3 py-2 text-sm text-warm-text placeholder-warm-muted focus:border-warm-accent focus:outline-none transition-colors duration-150 col-span-1"
           />
           <select
             value={form.category}
             onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
-            className="bg-gray-700 rounded px-3 py-2 text-sm col-span-1"
+            className="bg-warm-input border border-warm-border rounded px-3 py-2 text-sm text-warm-text focus:border-warm-accent focus:outline-none transition-colors duration-150 col-span-1"
           >
             {CATEGORIES.map(c => <option key={c}>{c}</option>)}
           </select>
@@ -168,13 +168,13 @@ export function AdminPage() {
             value={form.url}
             onChange={e => setForm(f => ({ ...f, url: e.target.value }))}
             required
-            className="bg-gray-700 rounded px-3 py-2 text-sm col-span-1 sm:col-span-1"
+            className="bg-warm-input border border-warm-border rounded px-3 py-2 text-sm text-warm-text placeholder-warm-muted focus:border-warm-accent focus:outline-none transition-colors duration-150 col-span-1 sm:col-span-1"
           />
           <div className="flex gap-2">
             <button
               type="submit"
               disabled={submitting}
-              className="flex-1 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 rounded px-3 py-2 text-sm font-medium"
+              className="flex-1 bg-warm-accent hover:opacity-90 disabled:opacity-50 text-white rounded px-3 py-2 text-sm font-medium transition-opacity duration-150"
             >
               {editingId !== null ? 'Update' : 'Add'}
             </button>
@@ -182,20 +182,20 @@ export function AdminPage() {
               <button
                 type="button"
                 onClick={cancelEdit}
-                className="bg-gray-600 hover:bg-gray-500 rounded px-3 py-2 text-sm"
+                className="bg-warm-hover hover:bg-warm-border text-warm-text rounded px-3 py-2 text-sm transition-colors duration-150"
               >
                 Cancel
               </button>
             )}
           </div>
-          {formError && <p className="col-span-full text-red-400 text-xs">{formError}</p>}
+          {formError && <p className="col-span-full text-warm-error text-xs">{formError}</p>}
         </form>
 
         {/* Filter */}
         <div className="mb-4 flex gap-2 flex-wrap">
           <button
             onClick={() => setFilter('')}
-            className={`text-xs px-3 py-1 rounded-full ${!filter ? 'bg-indigo-600' : 'bg-gray-700 hover:bg-gray-600'}`}
+            className={`text-xs px-3 py-1 rounded-full transition-colors duration-150 ${!filter ? 'bg-warm-accent text-white' : 'bg-warm-surface border border-warm-border text-warm-muted hover:bg-warm-hover'}`}
           >
             All ({entries.length})
           </button>
@@ -205,7 +205,7 @@ export function AdminPage() {
               <button
                 key={c}
                 onClick={() => setFilter(c)}
-                className={`text-xs px-3 py-1 rounded-full ${filter === c ? 'bg-indigo-600' : 'bg-gray-700 hover:bg-gray-600'}`}
+                className={`text-xs px-3 py-1 rounded-full transition-colors duration-150 ${filter === c ? 'bg-warm-accent text-white' : 'bg-warm-surface border border-warm-border text-warm-muted hover:bg-warm-hover'}`}
               >
                 {c} ({count})
               </button>
@@ -214,31 +214,31 @@ export function AdminPage() {
         </div>
 
         {loading ? (
-          <p className="text-gray-400">Loading...</p>
+          <p className="text-warm-muted">Loading...</p>
         ) : error ? (
-          <p className="text-red-400">Error: {error}</p>
+          <p className="text-warm-error">Error: {error}</p>
         ) : (
-          <div className="overflow-x-auto rounded-xl bg-gray-800">
+          <div className="overflow-x-auto rounded-xl bg-warm-surface border border-warm-border">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-gray-400 text-xs uppercase border-b border-gray-700">
+                <tr className="text-warm-muted text-xs uppercase border-b border-warm-border">
                   <th className="text-left px-4 py-3">Name</th>
                   <th className="text-left px-4 py-3">Category</th>
                   <th className="text-left px-4 py-3 hidden md:table-cell">URL</th>
                   <th className="text-right px-4 py-3">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-700">
+              <tbody className="divide-y divide-warm-divider">
                 {filtered.map(entry => (
-                  <tr key={entry.id} className={editingId === entry.id ? 'bg-gray-700' : 'hover:bg-gray-750'}>
-                    <td className="px-4 py-2 font-medium">{entry.name}</td>
-                    <td className="px-4 py-2 text-gray-400">{entry.category}</td>
+                  <tr key={entry.id} className={`transition-colors duration-150 ${editingId === entry.id ? 'bg-warm-hover' : 'hover:bg-warm-hover'}`}>
+                    <td className="px-4 py-2 font-medium text-warm-text">{entry.name}</td>
+                    <td className="px-4 py-2 text-warm-muted">{entry.category}</td>
                     <td className="px-4 py-2 hidden md:table-cell">
                       <a
                         href={entry.url}
                         target="_blank"
                         rel="noreferrer"
-                        className="text-indigo-400 hover:text-indigo-300 truncate max-w-xs block"
+                        className="text-warm-accent hover:opacity-80 truncate max-w-xs block transition-opacity"
                       >
                         {entry.url}
                       </a>
@@ -246,13 +246,13 @@ export function AdminPage() {
                     <td className="px-4 py-2 text-right space-x-2">
                       <button
                         onClick={() => startEdit(entry)}
-                        className="text-xs text-indigo-400 hover:text-indigo-300"
+                        className="text-xs text-warm-accent hover:opacity-80 transition-opacity"
                       >
                         Edit
                       </button>
                       <button
                         onClick={() => handleDelete(entry.id)}
-                        className="text-xs text-red-400 hover:text-red-300"
+                        className="text-xs text-warm-error hover:opacity-80 transition-opacity"
                       >
                         Delete
                       </button>
@@ -262,7 +262,7 @@ export function AdminPage() {
               </tbody>
             </table>
             {filtered.length === 0 && (
-              <p className="text-center text-gray-500 py-8">No entries</p>
+              <p className="text-center text-warm-muted py-8">No entries</p>
             )}
           </div>
         )}

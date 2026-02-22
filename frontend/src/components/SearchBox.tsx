@@ -57,10 +57,10 @@ export function SearchBox({ query, onQueryChange, results }: Props) {
         aria-controls={results.length > 0 ? 'search-results' : undefined}
         className={[
           'w-full px-5 py-4 text-lg',
-          'bg-gray-800 text-white placeholder-gray-400',
-          'border-2 border-gray-600 focus:border-indigo-500 focus:outline-none',
+          'bg-warm-input text-warm-text placeholder-warm-muted',
+          'border-2 border-warm-border focus:border-warm-accent focus:outline-none',
           results.length > 0 ? 'rounded-t-xl' : 'rounded-xl',
-          'transition-colors',
+          'transition-colors duration-150',
         ].join(' ')}
       />
       {results.length > 0 && (
@@ -68,7 +68,7 @@ export function SearchBox({ query, onQueryChange, results }: Props) {
           id="search-results"
           role="listbox"
           aria-label="Search results"
-          className="bg-gray-800 border-2 border-t-0 border-gray-600 rounded-b-xl overflow-hidden divide-y divide-gray-700"
+          className="bg-warm-surface border-2 border-t-0 border-warm-border rounded-b-xl overflow-hidden divide-y divide-warm-divider"
         >
           {results.map((entry, i) => (
             <SearchResult
