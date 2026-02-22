@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { createEntry, deleteEntry, updateEntry } from '../api/entries'
+import { useAuth } from '../hooks/useAuth'
 import { useEntries } from '../hooks/useEntries'
 import type { Entry } from '../types'
 
@@ -14,13 +15,72 @@ interface EntryForm {
 
 const EMPTY_FORM: EntryForm = { name: '', category: 'Spell', url: '' }
 
+function LoginGate({ onLogin }: { onLogin: (password: string) => Promise<void> }) {
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setSubmitting(true)
+    setError(null)
+    try {
+      await onLogin(password)
+    } catch {
+      setError('Incorrect password')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
+      <div className="w-full max-w-sm">
+        <h1 className="text-2xl font-bold mb-6 text-center">Admin Login</h1>
+        <form onSubmit={handleSubmit} className="bg-gray-800 rounded-xl p-6 flex flex-col gap-4">
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            autoFocus
+            required
+            className="bg-gray-700 rounded px-3 py-2 text-sm"
+          />
+          {error && <p className="text-red-400 text-xs">{error}</p>}
+          <button
+            type="submit"
+            disabled={submitting}
+            className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 rounded px-3 py-2 text-sm font-medium"
+          >
+            {submitting ? 'Logging in…' : 'Log in'}
+          </button>
+        </form>
+      </div>
+    </div>
+  )
+}
+
 export function AdminPage() {
+  const { token, isAuthenticated, loading: authLoading, login, logout } = useAuth()
   const { entries, loading, error, reload } = useEntries()
   const [filter, setFilter] = useState('')
   const [editingId, setEditingId] = useState<number | null>(null)
   const [form, setForm] = useState<EntryForm>(EMPTY_FORM)
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
+        <p className="text-gray-400">Loading…</p>
+      </div>
+    )
+  }
+
+  if (!isAuthenticated) {
+    return <LoginGate onLogin={login} />
+  }
 
   const filtered = filter
     ? entries.filter(e => e.category === filter)
@@ -40,13 +100,14 @@ export function AdminPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    if (!token) return
     setSubmitting(true)
     setFormError(null)
     try {
       if (editingId !== null) {
-        await updateEntry(editingId, form)
+        await updateEntry(editingId, form, token)
       } else {
-        await createEntry(form)
+        await createEntry(form, token)
       }
       cancelEdit()
       reload()
@@ -58,9 +119,10 @@ export function AdminPage() {
   }
 
   async function handleDelete(id: number) {
+    if (!token) return
     if (!confirm('Delete this entry?')) return
     try {
-      await deleteEntry(id)
+      await deleteEntry(id, token)
       reload()
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Delete failed')
@@ -72,7 +134,15 @@ export function AdminPage() {
       <div className="max-w-5xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold">Admin — Entries</h1>
-          <Link to="/" className="text-sm text-indigo-400 hover:text-indigo-300">← Search</Link>
+          <div className="flex items-center gap-4">
+            <Link to="/" className="text-sm text-indigo-400 hover:text-indigo-300">← Search</Link>
+            <button
+              onClick={logout}
+              className="text-sm text-gray-400 hover:text-gray-300"
+            >
+              Log out
+            </button>
+          </div>
         </div>
 
         {/* Add / Edit form */}

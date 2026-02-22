@@ -36,6 +36,10 @@ A fast search tool for [D&D Beyond](https://www.dndbeyond.com/) content. Search 
 ### Setup
 
 ```bash
+# Copy and configure environment variables (required for admin auth)
+cp .env.example backend/.env
+# Edit backend/.env and set ADMIN_PASSWORD and JWT_SECRET
+
 # Start the database
 just db-up
 
@@ -88,6 +92,20 @@ The scraper indexes the following D&D Beyond content types:
 - Species (Races), Monsters
 - Magic Items, Equipment
 - Feats, Backgrounds
+
+## Environment variables
+
+The backend reads from `backend/.env` (see `.env.example`):
+
+| Variable       | Required | Description                                          |
+| -------------- | -------- | ---------------------------------------------------- |
+| `DATABASE_URL` | No       | Postgres connection string (defaults to local dev)   |
+| `ADMIN_PASSWORD` | Yes    | Password to log in to the `/admin` interface         |
+| `JWT_SECRET`   | Yes      | Secret used to sign admin JWTs (use `openssl rand -hex 32`) |
+
+## Admin interface
+
+Visit `/admin` and log in with `ADMIN_PASSWORD`. The session lasts 24 hours and is stored in `sessionStorage`. Write operations (create, update, delete) require a valid JWT; reads are public.
 
 ## Documentation
 
