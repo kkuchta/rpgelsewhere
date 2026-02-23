@@ -2,8 +2,6 @@
 be-install:
     cd backend && uv sync
 
-be-dev:
-    cd backend && uv run uvicorn app.main:app --reload
 
 be-lint:
     cd backend && uv run ruff check . && uv run ruff format --check .
@@ -46,6 +44,3 @@ build: export fe-build
 # All
 lint:
     just be-lint && just fe-lint && just fe-typecheck
-
-dev:
-    just be-dev & just fe-dev

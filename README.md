@@ -22,7 +22,7 @@ A fast search tool for [D&D Beyond](https://www.dndbeyond.com/) content. Search 
 | Layer    | Tools                                                         |
 | -------- | ------------------------------------------------------------- |
 | Frontend | React 19, TypeScript, Vite, TailwindCSS 4, React Router 7     |
-| Backend  | FastAPI, SQLAlchemy, SQLite                                   |
+| Backend  | SQLAlchemy, SQLite                                            |
 | Tooling  | [`just`](https://github.com/casey/just), `uv`                 |
 
 ## Getting started
@@ -52,8 +52,6 @@ just fe-dev
 
 The frontend runs at `http://localhost:5173`.
 
-> **Migrating from an older version?** If you have a `backend/.env` with `DATABASE_URL`, `ADMIN_PASSWORD`, or `JWT_SECRET` values from the Postgres era, clear or replace that file with the contents of `.env.example` — the old values will cause startup errors.
-
 ### Production build
 
 ```bash
@@ -65,9 +63,7 @@ The `frontend/dist/` directory is a fully static site — deploy it to any CDN.
 ## Available commands
 
 ```bash
-just fe-dev       # Frontend dev server (the main one to use)
-just be-dev       # Backend only — vestigial, not needed for normal dev
-just dev          # Both concurrently (legacy convenience)
+just fe-dev       # Frontend dev server
 
 just scrape       # Scrape all categories from Common Crawl (full run)
 just scrape-test  # Scrape classes + species only (faster, good for local dev)
@@ -130,7 +126,7 @@ The backend reads from `backend/.env` (see `.env.example`). In most cases no con
 ```
 rpgelsewhere/
 ├── backend/
-│   ├── app/             # FastAPI app (models, schemas, routers)
+│   ├── app/             # SQLAlchemy models and database setup
 │   └── scripts/         # scrape_commoncrawl.py, export_entries.py
 ├── data/
 │   └── overrides.csv    # Manual entry corrections (committed to git)
