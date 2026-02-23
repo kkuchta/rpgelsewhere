@@ -44,8 +44,8 @@ CONTENT_PREFIXES: list[tuple[str, str]] = [
     ("www.dndbeyond.com/backgrounds/", "Background"),
 ]
 
-# Match /{category}/{numeric_id}-{slug} — rejects list pages and query-param variants
-SLUG_PATTERN = re.compile(r"/\d+-[a-z0-9-]+$")
+# Match a single {numeric_id}-{slug} segment (the part after the category prefix)
+SLUG_PATTERN = re.compile(r"\d+-[a-z0-9-]+$")
 
 
 def slug_to_name(slug: str) -> str:
@@ -245,15 +245,17 @@ def main():
                 count = 0
                 for record in records:
                     url: str = record.get("url", "")
-                    # Strip query params
                     clean_url = url.split("?")[0].rstrip("/")
-                    if "/" in clean_url:
-                        path = "/" + clean_url.split("/", 3)[-1]
-                    else:
-                        path = clean_url
 
-                    # Only keep URLs matching /{segment}/{numeric_id}-{slug}
-                    if not SLUG_PATTERN.search(path):
+                    # Strip protocol for prefix comparison
+                    bare = clean_url.split("://", 1)[-1]
+                    if not bare.startswith(prefix):
+                        continue
+                    slug_segment = bare[len(prefix) :]
+
+                    # Remainder must be a single "{id}-{slug}" — rejects
+                    # nested list/filter pages like spells/class/8-wizard
+                    if not SLUG_PATTERN.match(slug_segment):
                         continue
 
                     # Use https canonical form
