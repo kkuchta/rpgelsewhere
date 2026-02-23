@@ -72,7 +72,7 @@ export function SearchBox({ query, onQueryChange, results }: Props) {
         >
           {results.map((entry, i) => (
             <SearchResult
-              key={entry.id}
+              key={entry.url}
               entry={entry}
               focused={i === focusedIndex}
               onClick={() => setFocusedIndex(i)}
