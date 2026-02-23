@@ -46,9 +46,18 @@ export function SearchPage() {
             href="https://github.com/kkuchta/rpgelsewhere/issues/new?title=Missing+or+incorrect+entry&body=The+entry+for+%3Cx%3E+should+point+to+url+%3Cy%3E+instead"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-warm-text underline transition-colors"
+            className="hover:text-warm-text hover:underline transition-colors"
           >
             Missing something?
+          </a>
+          {' · '}
+          <a
+            href="https://kevinhighwater.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-warm-text hover:underline transition-colors"
+          >
+            By Kevin Highwater
           </a>
         </p>
       )}
