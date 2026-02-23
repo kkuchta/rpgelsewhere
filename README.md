@@ -110,6 +110,22 @@ The backend reads from `backend/.env` (see `.env.example`). In most cases no con
 | -------------- | -------- | ---------------------------------------------------- |
 | `DATABASE_URL` | No       | SQLite connection string (defaults to `sqlite:///data/entries.db`) |
 
+## Deployment
+
+The site is deployed to Netlify and auto-deploys on every push to `main`.
+
+**One-time setup:** Connect the GitHub repo in the Netlify dashboard (Sites > Add new site > Import an existing project). Netlify will detect `netlify.toml` automatically.
+
+**Update cycle:** `entries.json` is committed to git and is the only data the frontend needs at build time. To publish new scraper results:
+
+```bash
+just scrape    # or scrape-test for a partial run
+just export    # writes frontend/public/entries.json
+git add frontend/public/entries.json
+git commit -m "update entries"
+git push       # triggers a Netlify deploy
+```
+
 ## CI
 
 GitHub Actions runs on every push to `main` and on pull requests:

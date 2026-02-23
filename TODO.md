@@ -1,7 +1,7 @@
 - ~~Check out admin~~
   - ~~Secure this~~
 - X Improve design
-- Deploy
+- ~~Deploy~~
 - ~~Scraping: ignore homebrew~~
 - logging
 - analytics
