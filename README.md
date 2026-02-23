@@ -110,6 +110,13 @@ The backend reads from `backend/.env` (see `.env.example`). In most cases no con
 | -------------- | -------- | ---------------------------------------------------- |
 | `DATABASE_URL` | No       | SQLite connection string (defaults to `sqlite:///data/entries.db`) |
 
+## CI
+
+GitHub Actions runs on every push to `main` and on pull requests:
+
+- **Backend** — `ruff check` and `ruff format --check`
+- **Frontend** — ESLint, TypeScript type-check, and Vitest tests
+
 ## Documentation
 
 - [`docs/common-crawl.md`](docs/common-crawl.md) — CDX API usage, WARC record fetching, and rate limiting guidelines
