@@ -4,18 +4,12 @@ A fast search tool for [D&D Beyond](https://www.dndbeyond.com/) content. Search 
 
 ## How it works
 
-1. **Scraper** — queries the [Common Crawl](https://commoncrawl.org/) CDX API to discover D&D Beyond URLs, extracts names from URL slugs (`acid-splash` → "Acid Splash"), fetches the archived page HTML via WARC records to filter out homebrew content and detect whether the entry is 2014 legacy or 2024 edition, and stores everything in a local SQLite database.
+D&D Beyond blocks direct scraping, so we index content via [Common Crawl](https://commoncrawl.org/) instead.
+
+1. **Scraper** — queries the Common Crawl CDX API to discover D&D Beyond URLs, extracts names from URL slugs (`acid-splash` → "Acid Splash"), fetches the archived page HTML via WARC records to filter out homebrew content and detect whether the entry is 2014 legacy or 2024 edition, and stores everything in a local SQLite database.
 2. **Overrides** — `data/overrides.csv` (committed to git) provides manual corrections: add missing entries, fix names/categories, or exclude junk the scraper picked up.
 3. **Export** — combines the DB with overrides and writes `frontend/public/entries.json`.
 4. **Static site** — Vite bundles `entries.json` into the frontend. The resulting `dist/` directory is a fully static site with no backend required at runtime.
-
-# Requirements
-
-- We can't scrape dndbeyond.com directly because of their strong anti-bot protections. We can't use google or bing search apis because of their TOSs against caching search results.
-- The search must be _incredibly_ fast. Client-side only, powered by a bundled JSON file.
-- We're going to use commoncrawl. Not all spells/classes/etc will be present in each crawl, but hopefully over the course of a few crawls, we can get most of the spells/classes/races/etc.
-- We should have an interface to add mappings manually when we find deficiencies — this is the overrides CSV.
-- Search must be _intelligent_. We want the "Wizard" class to show up before the "Red Wizard" monster or whatever. This logic must be well-segmented out so that we can A. test it and B. modify it later as we come up with ideas to improve it.
 
 ## Stack
 
