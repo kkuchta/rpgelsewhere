@@ -11,6 +11,7 @@ Usage:
 import argparse
 import re
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import httpx
 from sqlalchemy.dialects.sqlite import insert
@@ -146,6 +147,23 @@ def detect_edition(html: str) -> str:
     return "2024"
 
 
+def _process_warc_entry(
+    url: str, entry: dict, client: httpx.Client
+) -> tuple[str, str | None, bool]:
+    """Fetch a single WARC record; return (url, edition_or_None, is_homebrew)."""
+    filename = entry.get("_warc_filename")
+    offset = entry.get("_warc_offset", 0)
+    length = entry.get("_warc_length", 0)
+    if not filename or not length:
+        return (url, None, False)
+    html = fetch_warc_content(filename, offset, length, client)
+    if html is None:
+        return (url, None, False)
+    if is_homebrew(html):
+        return (url, None, True)
+    return (url, detect_edition(html), False)
+
+
 def upsert_entries(entries: list[dict], db) -> int:
     if not entries:
         return 0
@@ -187,6 +205,12 @@ def main():
         metavar="CATEGORY",
         help="Only scrape these categories (e.g. Class Species). Case-insensitive.",
     )
+    parser.add_argument(
+        "--warc-workers",
+        type=int,
+        default=5,
+        help="Number of parallel WARC fetch workers (default: 5)",
+    )
     args = parser.parse_args()
 
     # Build the active prefix list, optionally filtered by --categories
@@ -200,7 +224,8 @@ def main():
 
     create_tables()
     print(f"Fetching {args.crawls} recent crawl IDs...")
-    with httpx.Client() as client:
+    limits = httpx.Limits(max_connections=args.warc_workers + 5)
+    with httpx.Client(limits=limits) as client:
         crawl_ids = get_recent_crawl_ids(args.crawls, client)
         print(f"Crawls: {crawl_ids}")
 
@@ -253,33 +278,37 @@ def main():
                 print(f"{count} new entries")
                 time.sleep(1.5)
 
-        # Second pass: fetch WARC content, filter homebrew, and detect edition
+        # Second pass: fetch WARC content in parallel, filter homebrew, detect edition
         if not args.skip_warc:
             total = len(seen_urls)
-            print(f"\nFetching WARC records to detect edition ({total} entries)...")
+            print(
+                f"\nFetching WARC records to detect edition "
+                f"({total} entries, {args.warc_workers} workers)..."
+            )
             homebrew_urls: list[str] = []
-            for i, (url, entry) in enumerate(seen_urls.items(), 1):
-                filename = entry.get("_warc_filename")
-                offset = entry.get("_warc_offset", 0)
-                length = entry.get("_warc_length", 0)
+            completed = 0
 
-                if not filename or not length:
-                    print(f"  [{i}/{total}] SKIP (no WARC metadata): {url}")
-                    continue
-
-                print(f"  [{i}/{total}] {url}", end=" ... ", flush=True)
-                html = fetch_warc_content(filename, offset, length, client)
-                if html is not None:
-                    if is_homebrew(html):
-                        print("SKIP (homebrew)")
+            with ThreadPoolExecutor(max_workers=args.warc_workers) as pool:
+                futures = {
+                    pool.submit(_process_warc_entry, url, entry, client): url
+                    for url, entry in seen_urls.items()
+                }
+                for future in as_completed(futures):
+                    completed += 1
+                    url = futures[future]
+                    try:
+                        _, edition, is_brew = future.result()
+                    except Exception as e:
+                        print(f"  [{completed}/{total}] {url} ... ERROR: {e}")
+                        continue
+                    if is_brew:
                         homebrew_urls.append(url)
+                        print(f"  [{completed}/{total}] {url} ... SKIP (homebrew)")
+                    elif edition:
+                        seen_urls[url]["edition"] = edition
+                        print(f"  [{completed}/{total}] {url} ... {edition}")
                     else:
-                        entry["edition"] = detect_edition(html)
-                        print(entry["edition"])
-                else:
-                    print("fetch failed, edition=None")
-
-                time.sleep(0.5)
+                        print(f"  [{completed}/{total}] {url} ... edition=None")
 
             for url in homebrew_urls:
                 seen_urls.pop(url, None)

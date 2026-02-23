@@ -68,6 +68,7 @@ just scrape-test  # Scrape classes + species only (faster, good for local dev)
 #   --dry-run                      Print results without writing to DB
 #   --limit N                      Cap results per category per crawl
 #   --crawls N                     Number of recent Common Crawl snapshots to search
+#   --warc-workers N               Parallel WARC fetch workers (default: 5)
 
 just export       # Apply overrides and write frontend/public/entries.json
 just fe-build     # Build the frontend (npm run build)

@@ -56,6 +56,6 @@ WARC files are served from `data.commoncrawl.org` via CloudFront (fast, no auth 
 
 ## Rate Limiting
 
-- **CDX API**: ~1–2 requests/second is polite. Add `time.sleep(1.5)` between prefix queries.
-- **WARC fetches**: 0.5–1 req/s is reasonable. Each record is a targeted byte-range fetch (~10–100 KB), not a full file download.
+- **CDX API**: ~1–2 requests/second is polite. Add `time.sleep(1.5)` between prefix queries. Keep these sequential.
+- **WARC fetches**: WARC files are served from CloudFront, which tolerates moderate concurrency. The scraper uses a `ThreadPoolExecutor` with 5 workers (configurable via `--warc-workers`) and no per-request sleep — the concurrency cap itself limits throughput to a safe level.
 - Set a descriptive `User-Agent` header per RFC 7231 conventions.
