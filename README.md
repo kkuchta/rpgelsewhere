@@ -74,8 +74,9 @@ just export       # Apply overrides and write frontend/public/entries.json
 just fe-build     # Build the frontend (npm run build)
 just build        # Full build: export + fe-build
 
-just lint         # Lint backend + frontend + typecheck
-just fe-test      # Run frontend tests
+just lint                # Lint backend + frontend + typecheck
+just fe-test             # Run frontend tests
+just check-completeness  # Evaluate dataset coverage against the 5e SRD
 ```
 
 ## Content categories
@@ -138,6 +139,7 @@ GitHub Actions runs on every push to `main` and on pull requests:
 
 - [`docs/common-crawl.md`](docs/common-crawl.md) — CDX API usage, WARC record fetching, and rate limiting guidelines
 - [`docs/architectural-decision-record.md`](docs/architectural-decision-record.md) — major architectural decisions
+- [`docs/srd-completeness.md`](docs/srd-completeness.md) — SRD completeness evaluation: data source, coverage notes, and how to interpret results
 
 ## Project structure
 

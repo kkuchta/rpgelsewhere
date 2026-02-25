@@ -36,6 +36,9 @@ scrape-test:
 export:
     cd backend && uv run python -m scripts.export_entries
 
+check-completeness:
+    cd backend && uv run python -m scripts.evaluate_completeness
+
 fe-build:
     cd frontend && npm run build
 
