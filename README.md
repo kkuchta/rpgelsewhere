@@ -1,6 +1,6 @@
 # RPGElsewhere
 
-A fast search tool for [D&D Beyond](https://www.dndbeyond.com/) content. Search spells, monsters, classes, equipment, and more — and jump straight to the relevant D&D Beyond page.
+A fast search tool for [D&D Beyond](https://www.dndbeyond.com/) content. Search spells, monsters, classes, equipment, and more — and jump straight to the relevant D&D Beyond page. The frontend includes a persisted light/dark theme toggle and defaults to the user's system preference on first load.
 
 ## How it works
 

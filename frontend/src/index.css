@@ -17,9 +17,30 @@
 }
 
 @layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html[data-theme='dark'] {
+    color-scheme: dark;
+    --color-warm-bg: #191715;
+    --color-warm-surface: #24201D;
+    --color-warm-input: #2B2622;
+    --color-warm-border: #4A433C;
+    --color-warm-divider: #3B342E;
+    --color-warm-text: #F3EEE9;
+    --color-warm-muted: #B8ADA3;
+    --color-warm-hover: #312B27;
+    --color-warm-accent: #7FB3F0;
+    --color-warm-error: #F28B82;
+  }
+
   body {
     font-family: var(--font-sans);
     color: var(--color-warm-text);
     background-color: var(--color-warm-bg);
+    transition:
+      background-color 150ms ease,
+      color 150ms ease;
   }
 }

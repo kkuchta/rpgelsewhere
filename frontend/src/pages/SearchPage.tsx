@@ -1,16 +1,32 @@
 import { SearchBox } from '../components/SearchBox'
 import { useEntries } from '../hooks/useEntries'
 import { useSearch } from '../hooks/useSearch'
+import { useTheme } from '../hooks/useTheme'
 
 export function SearchPage() {
   const { entries, loading, error } = useEntries()
   const { query, setQuery, results, showLegacy, setShowLegacy } = useSearch(entries)
+  const { isDark, toggleTheme } = useTheme()
 
   return (
-    <div className="min-h-screen bg-warm-bg flex flex-col items-center justify-start pt-24 px-4">
-      <div className="w-full max-w-2xl mb-8 text-center">
-        <h1 className="text-5xl font-bold text-warm-text mb-2" style={{ fontFamily: 'var(--font-serif)' }}>RPG Elsewhere</h1>
-        <p className="text-warm-muted text-sm">Fast D&amp;D Beyond content search</p>
+    <div className="min-h-screen bg-warm-bg flex flex-col items-center justify-start pt-24 px-4 transition-colors duration-150">
+      <div className="w-full max-w-2xl mb-8">
+        <div className="mb-4 flex justify-end">
+          <button
+            type="button"
+            onClick={toggleTheme}
+            aria-pressed={isDark}
+            aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
+            className="rounded-full border border-warm-border bg-warm-surface px-3 py-1.5 text-xs font-medium text-warm-muted hover:bg-warm-hover hover:text-warm-text transition-colors"
+          >
+            {isDark ? 'Light mode' : 'Dark mode'}
+          </button>
+        </div>
+
+        <div className="text-center">
+          <h1 className="text-5xl font-bold text-warm-text mb-2" style={{ fontFamily: 'var(--font-serif)' }}>RPG Elsewhere</h1>
+          <p className="text-warm-muted text-sm">Fast D&amp;D Beyond content search</p>
+        </div>
       </div>
 
       {loading ? (
@@ -29,7 +45,7 @@ export function SearchPage() {
               id="show-legacy"
               checked={showLegacy}
               onChange={e => setShowLegacy(e.target.checked)}
-              className="accent-[#2E2A28] cursor-pointer"
+              className="accent-warm-accent cursor-pointer"
             />
             <label htmlFor="show-legacy" className="text-warm-muted text-xs cursor-pointer select-none">
               Include legacy (2014) entries
