@@ -138,6 +138,7 @@ GitHub Actions runs on every push to `main` and on pull requests:
 ## Documentation
 
 - [`docs/common-crawl.md`](docs/common-crawl.md) — CDX API usage, WARC record fetching, and rate limiting guidelines
+- [`docs/additional-data-sources.md`](docs/additional-data-sources.md) — alternative discovery sources to improve coverage beyond Common Crawl
 - [`docs/architectural-decision-record.md`](docs/architectural-decision-record.md) — major architectural decisions
 - [`docs/srd-completeness.md`](docs/srd-completeness.md) — SRD completeness evaluation: data source, coverage notes, and how to interpret results
 
