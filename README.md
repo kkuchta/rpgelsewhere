@@ -1,5 +1,7 @@
 # RPGElsewhere
 
+(This readme is AI slop. It's good for onboarding new agent sessions, but would be annoying for a human to read. I'll write a human-oriented readme if there's demand for it!)
+
 A fast search tool for [D&D Beyond](https://www.dndbeyond.com/) content. Search spells, monsters, classes, equipment, and more — and jump straight to the relevant D&D Beyond page.
 
 ## How it works
@@ -9,19 +11,20 @@ D&D Beyond blocks direct scraping, so we index content via [Common Crawl](https:
 1. **Scrapers** — two complementary scrapers populate the database:
    - **Sitemap scraper** — fetches the official D&D Beyond sitemap for a complete, authoritative list of content URLs. No homebrew filtering needed (sitemap only lists official content). Edition is unknown from the sitemap alone.
    - **Common Crawl scraper** — queries the Common Crawl CDX API to discover D&D Beyond URLs, fetches archived page HTML via WARC records to filter out homebrew content and detect whether the entry is 2014 legacy or 2024 edition.
-   
+
    Both extract names from URL slugs (`acid-splash` → "Acid Splash") and upsert into the same SQLite database. The sitemap scraper preserves any edition data already set by Common Crawl.
+
 2. **Overrides** — `data/overrides.csv` (committed to git) provides manual corrections: add missing entries, fix names/categories, or exclude junk the scraper picked up.
 3. **Export** — combines the DB with overrides and writes `frontend/public/entries.json`.
 4. **Static site** — Vite bundles `entries.json` into the frontend. The resulting `dist/` directory is a fully static site with no backend required at runtime.
 
 ## Stack
 
-| Layer    | Tools                                                         |
-| -------- | ------------------------------------------------------------- |
-| Frontend | React 19, TypeScript, Vite, TailwindCSS 4, React Router 7     |
-| Backend  | SQLAlchemy, SQLite                                            |
-| Tooling  | [`just`](https://github.com/casey/just), `uv`                 |
+| Layer    | Tools                                                     |
+| -------- | --------------------------------------------------------- |
+| Frontend | React 19, TypeScript, Vite, TailwindCSS 4, React Router 7 |
+| Backend  | SQLAlchemy, SQLite                                        |
+| Tooling  | [`just`](https://github.com/casey/just), `uv`             |
 
 ## Getting started
 
@@ -102,13 +105,13 @@ The scraper indexes the following D&D Beyond content types:
 
 Edit `data/overrides.csv` to manually correct the scraper output. Commit the file to git — changes are reviewed in PRs and version-tracked automatically.
 
-| Column     | Description                                     |
-| ---------- | ----------------------------------------------- |
-| `action`   | `add`, `update`, or `delete`                    |
-| `url`      | The D&D Beyond URL (used as the unique key)     |
-| `name`     | Entry name (leave blank on `delete`)            |
+| Column     | Description                                             |
+| ---------- | ------------------------------------------------------- |
+| `action`   | `add`, `update`, or `delete`                            |
+| `url`      | The D&D Beyond URL (used as the unique key)             |
+| `name`     | Entry name (leave blank on `delete`)                    |
 | `category` | One of the content categories (leave blank on `delete`) |
-| `edition`  | `legacy`, `2024`, or blank                      |
+| `edition`  | `legacy`, `2024`, or blank                              |
 
 - **add** — insert an entry the scraper never found (all fields required)
 - **update** — override specific fields on a scraped entry matched by URL (empty fields are left unchanged; if the URL isn't in the DB it behaves like `add`)
@@ -118,8 +121,8 @@ Edit `data/overrides.csv` to manually correct the scraper output. Commit the fil
 
 The backend reads from `backend/.env` (see `.env.example`). In most cases no configuration is needed — the defaults work out of the box.
 
-| Variable       | Required | Description                                          |
-| -------------- | -------- | ---------------------------------------------------- |
+| Variable       | Required | Description                                                        |
+| -------------- | -------- | ------------------------------------------------------------------ |
 | `DATABASE_URL` | No       | SQLite connection string (defaults to `sqlite:///data/entries.db`) |
 
 ## Deployment
