@@ -1,3 +1,5 @@
+import { useState } from 'react'
+import { AboutModal } from '../components/AboutModal'
 import { SearchBox } from '../components/SearchBox'
 import { useEntries } from '../hooks/useEntries'
 import { useSearch } from '../hooks/useSearch'
@@ -5,6 +7,7 @@ import { useSearch } from '../hooks/useSearch'
 export function SearchPage() {
   const { entries, loading, error } = useEntries()
   const { query, setQuery, results, showLegacy, setShowLegacy } = useSearch(entries)
+  const [aboutOpen, setAboutOpen] = useState(false)
 
   return (
     <div className="min-h-screen bg-warm-bg flex flex-col items-center justify-start pt-24 px-4">
@@ -51,16 +54,16 @@ export function SearchPage() {
             Missing something?
           </a>
           {' · '}
-          <a
-            href="https://kevinhighwater.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-warm-text hover:underline transition-colors"
+          <button
+            onClick={() => setAboutOpen(true)}
+            className="hover:text-warm-text hover:underline transition-colors cursor-pointer"
           >
-            By Kevin Highwater
-          </a>
+            About
+          </button>
         </p>
       )}
+
+      <AboutModal open={aboutOpen} onClose={() => setAboutOpen(false)} />
 
       <a
         href="https://github.com/kkuchta/rpgelsewhere"
