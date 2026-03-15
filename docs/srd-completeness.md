@@ -46,3 +46,7 @@ The API exposes both `/api/2014/` (full SRD) and `/api/2024/` endpoints, but the
 | Background | 1       | 1         | 100% |
 
 The SRD is an imperfect reference for categories like Equipment and Magic Items due to variant-listing inflation. Spells and Monsters are the most actionable signals.
+
+## Improving coverage
+
+The D&D Beyond sitemap (`just scrape-sitemap`) is the most effective way to close coverage gaps. It provides 362 spells, 344 monsters, 12 species, 13 classes, 20 subclasses, 337 magic items, 7 backgrounds, and 3 feats — all official content. Run it before the Common Crawl scraper (`just scrape`) to populate URLs, then use Common Crawl to fill in edition data. Equipment is the one category the sitemap doesn't cover; it still depends on Common Crawl.

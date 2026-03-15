@@ -26,7 +26,12 @@ fe-test:
     cd frontend && npm test
 
 # Scraper
-scrape:
+scrape: scrape-sitemap scrape-commoncrawl
+
+scrape-sitemap:
+    cd backend && uv run python -m scripts.scrape_sitemap
+
+scrape-commoncrawl:
     cd backend && uv run python -m scripts.scrape_commoncrawl
 
 scrape-test:

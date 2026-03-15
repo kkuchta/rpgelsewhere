@@ -6,7 +6,11 @@ A fast search tool for [D&D Beyond](https://www.dndbeyond.com/) content. Search 
 
 D&D Beyond blocks direct scraping, so we index content via [Common Crawl](https://commoncrawl.org/) instead.
 
-1. **Scraper** — queries the Common Crawl CDX API to discover D&D Beyond URLs, extracts names from URL slugs (`acid-splash` → "Acid Splash"), fetches the archived page HTML via WARC records to filter out homebrew content and detect whether the entry is 2014 legacy or 2024 edition, and stores everything in a local SQLite database.
+1. **Scrapers** — two complementary scrapers populate the database:
+   - **Sitemap scraper** — fetches the official D&D Beyond sitemap for a complete, authoritative list of content URLs. No homebrew filtering needed (sitemap only lists official content). Edition is unknown from the sitemap alone.
+   - **Common Crawl scraper** — queries the Common Crawl CDX API to discover D&D Beyond URLs, fetches archived page HTML via WARC records to filter out homebrew content and detect whether the entry is 2014 legacy or 2024 edition.
+   
+   Both extract names from URL slugs (`acid-splash` → "Acid Splash") and upsert into the same SQLite database. The sitemap scraper preserves any edition data already set by Common Crawl.
 2. **Overrides** — `data/overrides.csv` (committed to git) provides manual corrections: add missing entries, fix names/categories, or exclude junk the scraper picked up.
 3. **Export** — combines the DB with overrides and writes `frontend/public/entries.json`.
 4. **Static site** — Vite bundles `entries.json` into the frontend. The resulting `dist/` directory is a fully static site with no backend required at runtime.
@@ -34,8 +38,8 @@ D&D Beyond blocks direct scraping, so we index content via [Common Crawl](https:
 just be-install
 just fe-install
 
-# Scrape some data (classes + species only, all crawls — good for testing)
-just scrape-test
+# Scrape D&D Beyond content (sitemap + Common Crawl)
+just scrape
 
 # Export entries.json
 just export
@@ -57,12 +61,14 @@ The `frontend/dist/` directory is a fully static site — deploy it to any CDN.
 ## Available commands
 
 ```bash
-just fe-dev       # Frontend dev server
+just fe-dev           # Frontend dev server
 
-just scrape       # Scrape all categories from Common Crawl (full run)
-just scrape-test  # Scrape classes + species only (faster, good for local dev)
+just scrape           # Full scrape: sitemap + Common Crawl (recommended)
+just scrape-sitemap   # Sitemap only (fast, complete URLs, no edition info)
+just scrape-commoncrawl  # Common Crawl only (slower, adds edition info)
+just scrape-test      # Common Crawl for classes + species only (quick local dev)
 
-# Scraper flags (pass after scrape/scrape-test):
+# Common Crawl scraper flags (pass after scrape-commoncrawl/scrape-test):
 #   --categories Class Spell ...   Only scrape specific categories
 #   --skip-warc                    Skip edition detection and homebrew filtering (faster, edition stored as NULL)
 #   --dry-run                      Print results without writing to DB
@@ -70,9 +76,13 @@ just scrape-test  # Scrape classes + species only (faster, good for local dev)
 #   --crawls N                     Number of recent Common Crawl snapshots to search
 #   --warc-workers N               Parallel WARC fetch workers (default: 5)
 
-just export       # Apply overrides and write frontend/public/entries.json
-just fe-build     # Build the frontend (npm run build)
-just build        # Full build: export + fe-build
+# Sitemap scraper flags (pass after scrape-sitemap):
+#   --categories Spell Monster ... Only scrape specific categories
+#   --dry-run                      Print results without writing to DB
+
+just export           # Apply overrides and write frontend/public/entries.json
+just fe-build         # Build the frontend (npm run build)
+just build            # Full build: export + fe-build
 
 just lint                # Lint backend + frontend + typecheck
 just fe-test             # Run frontend tests
@@ -121,7 +131,7 @@ The site is deployed to Netlify and auto-deploys on every push to `main`.
 **Update cycle:** `entries.json` is committed to git and is the only data the frontend needs at build time. To publish new scraper results:
 
 ```bash
-just scrape    # or scrape-test for a partial run
+just scrape    # sitemap + Common Crawl (full run)
 just export    # writes frontend/public/entries.json
 git add frontend/public/entries.json
 git commit -m "update entries"
@@ -147,7 +157,7 @@ GitHub Actions runs on every push to `main` and on pull requests:
 rpgelsewhere/
 ├── backend/
 │   ├── app/             # SQLAlchemy models and database setup
-│   └── scripts/         # scrape_commoncrawl.py, export_entries.py
+│   └── scripts/         # scrape_sitemap.py, scrape_commoncrawl.py, export_entries.py
 ├── data/
 │   └── overrides.csv    # Manual entry corrections (committed to git)
 ├── frontend/
