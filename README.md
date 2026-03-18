@@ -152,6 +152,7 @@ GitHub Actions runs on every push to `main` and on pull requests:
 
 - [`docs/sitemap-scraping.md`](docs/sitemap-scraping.md) — D&D Beyond sitemap structure, scraping approach, and class/subclass differentiation
 - [`docs/common-crawl.md`](docs/common-crawl.md) — CDX API usage, WARC record fetching, and rate limiting guidelines
+- [`docs/additional-data-sources.md`](docs/additional-data-sources.md) — alternative discovery sources to improve coverage beyond Common Crawl
 - [`docs/architectural-decision-record.md`](docs/architectural-decision-record.md) — major architectural decisions
 - [`docs/srd-completeness.md`](docs/srd-completeness.md) — SRD completeness evaluation: data source, coverage notes, and how to interpret results
 
